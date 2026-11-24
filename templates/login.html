@@ -6,62 +6,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | MUSICIFY</title>
 
+    <!-- Correct CSS path -->
     <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
+         href="{{ url_for('static', filename='css/style.css') }}"
 </head>
 
 <body class="auth-body">
 
-    <div class="auth-card">
-
-        <a href="{{ url_for('login') }}" class="logo">
-            MUSIC<span>IFY</span>
-        </a>
-
-        <h1>Welcome Back!</h1>
-
-        <p class="subtitle">Login to enjoy your music.</p>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% for category, message in messages %}
-                <div class="alert {{ category }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endwith %}
-
-        <form method="POST" action="{{ url_for('login') }}">
-
-            <label>Email Address</label>
-
-            <input
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                required
-            >
-
-            <label>Password</label>
-
-            <input
-                type="password"
-                name="password"
-                placeholder="Enter your password"
-                required
-            >
-
-            <button type="submit" class="main-btn">
-                Login
-            </button>
-
-        </form>
-
-        <p class="bottom-text">
-            Don't have an account?
-            <a href="{{ url_for('register') }}">Register here</a>
-        </p>
-
+    <div class="auth-background">
+        <div class="glow glow-one"></div>
+        <div class="glow glow-two"></div>
     </div>
+
+    <main class="auth-wrapper">
+
+        <div class="auth-card">
+
+            <a href="{{ url_for('login') }}" class="logo">
+                MUSIC<span>IFY</span>
+            </a>
+
+            <div class="music-icon">♫</div>
+
+            <h1>Welcome Back!</h1>
+
+            <p class="auth-subtitle">
+                Your music. Your mood. Your world.
+            </p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('login') }}">
+
+                <label>Email Address</label>
+
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    autocomplete="email"
+                    required
+                >
+
+                <label>Password</label>
+
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button type="submit" class="main-btn">
+                    Login <span>→</span>
+                </button>
+
+            </form>
+
+            <p class="bottom-text">
+                Don't have an account?
+                <a href="{{ url_for('register') }}">Create Account</a>
+            </p>
+
+            <div class="auth-footer">
+                MADE FOR MUSIC LOVERS ♫
+            </div>
+
+        </div>
+
+    </main>
 
 </body>
 </html>

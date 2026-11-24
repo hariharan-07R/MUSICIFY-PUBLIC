@@ -1,7 +1,6 @@
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,219 +9,232 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/style.css') }}">
-</head>
 
-<body class="home-body">
-
-    <!-- NAVIGATION -->
-    <header class="topbar">
-
-        <a href="{{ url_for('home') }}" class="logo">
-            MUSIC<span>IFY</span>
-        </a>
-
-        <nav>
-            <a href="#home">Home</a>
-            <a href="#library">My Music</a>
-            <a href="#languages">Languages</a>
-            <a href="#player">Player</a>
-            <a href="{{ url_for('logout') }}" class="logout-btn">
-                Logout
-            </a>
-        </nav>
-
-    </header>
-
-
-    <main class="home-container">
-
-        <!-- HERO -->
-        <section class="hero" id="home">
-
-            <p class="eyebrow">YOUR SOUND. YOUR WORLD.</p>
-
-            <h1>Feel Every Beat.</h1>
-
-            <p>
-                Welcome, {{ username }}.
-                Discover and enjoy your favourite music.
-            </p>
-
-            <input
-                type="search"
-                id="songSearch"
-                placeholder="Search your favourite songs..."
-                autocomplete="off"
-            >
-
-            <p id="searchMessage" class="player-message"></p>
-
-        </section>
-
-
-        <!-- MUSIC LIBRARY -->
-        <section id="library">
-
-            <h2>Your Music Library</h2>
-
-            <p class="section-subtitle">
-                All your available songs in one place.
-            </p>
-
-            <div class="music-grid" id="musicGrid">
-
-                {% if not songs %}
-                    <p class="empty-message">
-                        No songs found. Add MP3 files to
-                        static/music/songs/.
-                    </p>
-                {% endif %}
-
-                {% for song in songs %}
-
-                    <article
-                        class="music-card"
-                        data-song-index="{{ loop.index0 }}"
-                        data-search="{{ song.name }}"
-                    >
-
-                        <div class="music-art art-one">
-                            ♫
-                        </div>
-
-                        <h3>{{ song.name }}</h3>
-
-                        <p>MUSICIFY</p>
-
-                    </article>
-
-                {% endfor %}
-
-            </div>
-
-        </section>
-
-
-        <!-- LANGUAGES -->
-        <section class="language-section" id="languages">
-
-            <h2>Explore Languages</h2>
-
-            <p class="section-subtitle">
-                Music has no boundaries.
-            </p>
-
-            <div class="language-list">
-                <span>Tamil</span>
-                <span>English</span>
-                <span>Hindi</span>
-                <span>Telugu</span>
-                <span>Malayalam</span>
-                <span>Kannada</span>
-            </div>
-
-        </section>
-
-
-        <!-- MUSIC PLAYER -->
-        <section class="music-player" id="player">
-
-            <p class="eyebrow">NOW PLAYING</p>
-
-            <div class="player-art">
-                <span>♫</span>
-            </div>
-
-            <div class="player-info">
-
-                <h2 id="songTitle">Select a Song</h2>
-
-                <p id="artistName">MUSICIFY</p>
-
-            </div>
-
-
-            <!-- CONTROLS -->
-            <div class="player-controls">
-
-                <button id="previousButton" title="Previous">
-                    ⏮
-                </button>
-
-                <button id="playButton" title="Play or Pause">
-                    ▶
-                </button>
-
-                <button id="nextButton" title="Next">
-                    ⏭
-                </button>
-
-            </div>
-
-
-            <!-- PROGRESS -->
-            <div class="progress-container">
-
-                <input
-                    type="range"
-                    id="progressBar"
-                    min="0"
-                    max="100"
-                    value="0"
-                >
-
-                <div class="time-display">
-                    <span id="currentTime">0:00</span>
-                    <span id="duration">0:00</span>
-                </div>
-
-            </div>
-
-
-            <!-- VOLUME -->
-            <div class="volume-control">
-
-                <span>🔊</span>
-
-                <input
-                    type="range"
-                    id="volumeBar"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value="0.7"
-                >
-
-            </div>
-
-            <p id="playerMessage" class="player-message"></p>
-
-        </section>
-
-    </main>
-
-
-    <!-- FOOTER -->
-    <footer>
-        <p>© 2026 MUSICIFY. Made for music lovers.</p>
-    </footer>
-
-
-    <!-- AUDIO -->
-    <audio id="audioPlayer" preload="metadata"></audio>
-
-
-    <!-- SONG DATA FROM FLASK -->
     <script>
         window.MUSICIFY_SONGS = {{ songs | tojson }};
     </script>
 
-
-    <!-- JAVASCRIPT -->
     <script
         src="{{ url_for('static', filename='js/script.js') }}"
         defer>
     </script>
+</head>
+
+<body>
+
+<header class="topbar">
+
+    <a href="/" class="logo">
+        MUSIC<span>IFY</span>
+    </a>
+
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#library">My Music</a>
+        <a href="#online">Online Music</a>
+        <a href="#player">Player</a>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    </nav>
+
+</header>
+
+
+<main class="container">
+
+    <!-- HERO -->
+
+    <section class="hero" id="home">
+
+        <p class="eyebrow">YOUR SOUND. YOUR WORLD.</p>
+
+        <h1>Feel Every Beat.</h1>
+
+        <p>Welcome, {{ username }}! Discover your favourite music.</p>
+
+        <div class="search-box">
+            <input
+                type="search"
+                id="songSearch"
+                placeholder="Search Tamil, Hindi, English songs..."
+                autocomplete="off"
+            >
+
+            <button id="searchButton">Search</button>
+        </div>
+
+        <p id="searchMessage" class="message"></p>
+
+    </section>
+
+
+    <!-- ONLINE MUSIC -->
+
+    <section id="online">
+
+        <h2>Discover Online Music</h2>
+
+        <p class="subtitle">
+            Search songs from the Audius music catalogue.
+        </p>
+
+        <div id="onlineSearchResults" class="music-grid">
+
+            <p class="empty-message">
+                Search for a song to discover online music.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- LOCAL MUSIC -->
+
+    <section id="library">
+
+        <h2>Your Music Library</h2>
+
+        <p class="subtitle">Your personal MP3 collection.</p>
+
+        <div class="music-grid" id="localMusicGrid">
+
+            {% if not songs %}
+
+                <p class="empty-message">
+                    No local songs found. Add MP3 files to
+                    static/music/songs/.
+                </p>
+
+            {% endif %}
+
+            {% for song in songs %}
+
+                <article
+                    class="music-card local-card"
+                    data-song-index="{{ loop.index0 }}"
+                >
+
+                    <div class="music-art">
+                        ♫
+                    </div>
+
+                    <h3>{{ song.name }}</h3>
+
+                    <p>Local Music</p>
+
+                    <button class="local-play-button">
+                        ▶ Play
+                    </button>
+
+                </article>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <!-- LANGUAGES -->
+
+    <section class="language-section" id="languages">
+
+        <h2>Explore Languages</h2>
+
+        <div class="language-list">
+
+            <span>Tamil</span>
+            <span>English</span>
+            <span>Hindi</span>
+            <span>Telugu</span>
+            <span>Malayalam</span>
+            <span>Kannada</span>
+
+        </div>
+
+    </section>
+
+
+    <!-- PLAYER -->
+
+    <section class="music-player" id="player">
+
+        <p class="eyebrow">NOW PLAYING</p>
+
+        <div class="player-art" id="playerArtwork">
+            ♫
+        </div>
+
+        <div class="player-info">
+
+            <h2 id="songTitle">Select a Song</h2>
+
+            <p id="artistName">MUSICIFY</p>
+
+        </div>
+
+
+        <div class="player-controls">
+
+            <button id="previousButton" title="Previous">⏮</button>
+
+            <button id="playButton" title="Play or Pause">▶</button>
+
+            <button id="nextButton" title="Next">⏭</button>
+
+        </div>
+
+
+        <div class="progress-container">
+
+            <input
+                type="range"
+                id="progressBar"
+                min="0"
+                max="100"
+                value="0"
+            >
+
+            <div class="time-display">
+
+                <span id="currentTime">0:00</span>
+
+                <span id="duration">0:00</span>
+
+            </div>
+
+        </div>
+
+
+        <div class="volume-control">
+
+            <span>🔊</span>
+
+            <input
+                type="range"
+                id="volumeBar"
+                min="0"
+                max="1"
+                step="0.01"
+                value="0.7"
+            >
+
+        </div>
+
+        <p id="playerMessage" class="message"></p>
+
+    </section>
+
+</main>
+
+
+<footer>
+    <p>© 2026 MUSICIFY. Made for music lovers.</p>
+    <p>Online catalogue powered by Audius.</p>
+</footer>
+
+
+<audio id="audioPlayer" preload="metadata"></audio>
 
 </body>
 </html>

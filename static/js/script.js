@@ -1,402 +1,477 @@
 
-// =====================================
-// MUSICIFY - COMPLETE MUSIC PLAYER
-// =====================================
+document.addEventListener("DOMContentLoaded", () => {
 
-const songs = window.MUSICIFY_SONGS || [];
+    const audio = document.getElementById("audioPlayer");
 
-let currentSong = -1;
+    const searchInput = document.getElementById("songSearch");
+    const searchButton = document.getElementById("searchButton");
 
-const audio = document.getElementById("audioPlayer");
-const playButton = document.getElementById("playButton");
-const previousButton = document.getElementById("previousButton");
-const nextButton = document.getElementById("nextButton");
+    const onlineResults = document.getElementById("onlineSearchResults");
 
-const progressBar = document.getElementById("progressBar");
-const volumeBar = document.getElementById("volumeBar");
+    const songTitle = document.getElementById("songTitle");
+    const artistName = document.getElementById("artistName");
+    const playerArtwork = document.getElementById("playerArtwork");
 
-const songTitle = document.getElementById("songTitle");
-const artistName = document.getElementById("artistName");
+    const playButton = document.getElementById("playButton");
+    const previousButton = document.getElementById("previousButton");
+    const nextButton = document.getElementById("nextButton");
 
-const currentTimeDisplay = document.getElementById("currentTime");
-const durationDisplay = document.getElementById("duration");
+    const progressBar = document.getElementById("progressBar");
+    const volumeBar = document.getElementById("volumeBar");
 
-const playerMessage = document.getElementById("playerMessage");
-const searchInput = document.getElementById("songSearch");
+    const currentTime = document.getElementById("currentTime");
+    const duration = document.getElementById("duration");
 
-const cards = document.querySelectorAll(".music-card");
+    const searchMessage = document.getElementById("searchMessage");
+    const playerMessage = document.getElementById("playerMessage");
+
+    const localSongs = window.MUSICIFY_SONGS || [];
+
+    let playlist = [];
+    let currentIndex = -1;
+    let searchTimer = null;
+    let isSearching = false;
 
 
-// =====================================
-// FORMAT TIME
-// =====================================
+    // =================================
+    // FORMAT TIME
+    // =================================
 
-function formatTime(seconds) {
+    function formatTime(seconds) {
 
-    if (!Number.isFinite(seconds)) {
-        return "0:00";
+        if (!Number.isFinite(seconds)) return "0:00";
+
+        const minutes = Math.floor(seconds / 60);
+        const remaining = Math.floor(seconds % 60);
+
+        return `${minutes}:${String(remaining).padStart(2, "0")}`;
     }
 
-    const minutes = Math.floor(seconds / 60);
-    const remaining = Math.floor(seconds % 60);
 
-    return `${minutes}:${String(remaining).padStart(2, "0")}`;
-}
+    // =================================
+    // DISPLAY MESSAGE
+    // =================================
 
-
-// =====================================
-// DISPLAY MESSAGE
-// =====================================
-
-function showMessage(message) {
-
-    playerMessage.textContent = message;
-
-}
-
-
-// =====================================
-// LOAD SONG
-// =====================================
-
-function loadSong(index) {
-
-    if (!songs.length) {
-        showMessage("No songs available.");
-        return;
+    function showPlayerMessage(message) {
+        playerMessage.textContent = message;
     }
 
-    if (index < 0 || index >= songs.length) {
-        return;
-    }
 
-    currentSong = index;
+    // =================================
+    // PLAY A SONG
+    // =================================
 
-    const song = songs[index];
+    async function playSong(index) {
 
-    audio.src = song.url;
-    audio.load();
+        if (index < 0 || index >= playlist.length) return;
 
-    songTitle.textContent = song.name;
-    artistName.textContent = "MUSICIFY";
+        currentIndex = index;
 
-    progressBar.value = 0;
+        const song = playlist[index];
 
-    currentTimeDisplay.textContent = "0:00";
-    durationDisplay.textContent = "0:00";
-
-    showMessage("");
-
-    updateActiveCard();
-}
-
-
-// =====================================
-// UPDATE ACTIVE CARD
-// =====================================
-
-function updateActiveCard() {
-
-    cards.forEach(card => {
-
-        const index = Number(card.dataset.songIndex);
-
-        card.classList.toggle(
-            "active",
-            index === currentSong
-        );
-
-    });
-
-}
-
-
-// =====================================
-// PLAY SONG
-// =====================================
-
-async function playSong() {
-
-    if (currentSong === -1 && songs.length > 0) {
-        loadSong(0);
-    }
-
-    if (currentSong === -1) {
-        showMessage("Add MP3 songs to your music folder.");
-        return;
-    }
-
-    try {
-
-        await audio.play();
-
-        showMessage("");
-
-    } catch (error) {
-
-        console.error("Audio playback error:", error);
-
-        showMessage(
-            "Unable to play this song. Check the MP3 file."
-        );
-
-    }
-
-}
-
-
-// =====================================
-// PLAY / PAUSE
-// =====================================
-
-function togglePlay() {
-
-    if (currentSong === -1) {
-        playSong();
-        return;
-    }
-
-    if (audio.paused) {
-        playSong();
-    } else {
         audio.pause();
+        audio.src = song.url;
+
+        songTitle.textContent = song.title;
+        artistName.textContent = song.artist;
+
+        if (song.artwork) {
+
+            playerArtwork.innerHTML = "";
+
+            const img = document.createElement("img");
+            img.src = song.artwork;
+            img.alt = "Album artwork";
+
+            playerArtwork.appendChild(img);
+
+        } else {
+
+            playerArtwork.textContent = "♫";
+        }
+
+        progressBar.value = 0;
+        currentTime.textContent = "0:00";
+        duration.textContent = "0:00";
+
+        showPlayerMessage("Loading music...");
+
+        try {
+
+            await audio.play();
+
+            playButton.textContent = "⏸";
+            showPlayerMessage("");
+
+        } catch (error) {
+
+            playButton.textContent = "▶";
+
+            showPlayerMessage(
+                "Unable to play this song. Try another track."
+            );
+
+            console.error(error);
+        }
+
     }
 
-}
+
+    // =================================
+    // LOCAL SONG PLAYLIST
+    // =================================
+
+    function playLocalSong(index) {
+
+        playlist = localSongs.map(song => ({
+            title: song.name,
+            artist: "Local Music",
+            url: song.url,
+            artwork: null,
+            type: "local"
+        }));
+
+        playSong(index);
+    }
 
 
-// =====================================
-// NEXT SONG
-// =====================================
+    // =================================
+    // ONLINE SONG PLAYLIST
+    // =================================
 
-function nextSong() {
+    function playOnlineSong(index) {
 
-    if (!songs.length) return;
+        const onlineSongs = Array.from(
+            onlineResults.querySelectorAll(".online-card")
+        ).map(card => ({
+            id: card.dataset.id,
+            title: card.dataset.title,
+            artist: card.dataset.artist,
+            artwork: card.dataset.artwork || null,
+            url: `/api/audius/stream/${encodeURIComponent(card.dataset.id)}`,
+            type: "online"
+        }));
 
-    const nextIndex =
-        (currentSong + 1) % songs.length;
+        playlist = onlineSongs;
 
-    loadSong(nextIndex);
-
-    playSong();
-
-}
-
-
-// =====================================
-// PREVIOUS SONG
-// =====================================
-
-function previousSong() {
-
-    if (!songs.length) return;
-
-    const previousIndex =
-        (currentSong - 1 + songs.length) % songs.length;
-
-    loadSong(previousIndex);
-
-    playSong();
-
-}
+        playSong(index);
+    }
 
 
-// =====================================
-// PLAY SONG BY CLICKING CARD
-// =====================================
+    // =================================
+    // SEARCH AUDIUS
+    // =================================
 
-cards.forEach(card => {
+    async function searchMusic() {
 
-    card.addEventListener("click", () => {
+        const query = searchInput.value.trim();
 
-        const index = Number(card.dataset.songIndex);
+        if (!query) {
 
-        loadSong(index);
+            onlineResults.innerHTML =
+                '<p class="empty-message">Enter a song or artist name.</p>';
 
-        playSong();
+            searchMessage.textContent = "";
+            return;
+        }
 
-        document.getElementById("player")
-            .scrollIntoView({
-                behavior: "smooth"
+        if (isSearching) return;
+
+        isSearching = true;
+
+        searchButton.disabled = true;
+        searchButton.textContent = "Searching...";
+
+        searchMessage.textContent = "Searching online music...";
+
+        onlineResults.innerHTML =
+            '<p class="empty-message">Please wait...</p>';
+
+        try {
+
+            const response = await fetch(
+                `/api/audius/search?q=${encodeURIComponent(query)}`
+            );
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || "Search failed");
+            }
+
+            onlineResults.innerHTML = "";
+
+            const tracks = result.data || [];
+
+            if (tracks.length === 0) {
+
+                onlineResults.innerHTML =
+                    '<p class="empty-message">No playable songs found.</p>';
+
+                searchMessage.textContent = "Try another song or artist.";
+                return;
+            }
+
+            tracks.forEach((track, index) => {
+
+                const card = document.createElement("article");
+
+                card.className = "music-card online-card";
+
+                card.dataset.id = track.id;
+                card.dataset.title = track.title;
+                card.dataset.artist = track.artist;
+                card.dataset.artwork = track.artwork || "";
+
+                const artwork = document.createElement("div");
+                artwork.className = "music-art";
+
+                if (track.artwork) {
+
+                    const img = document.createElement("img");
+                    img.src = track.artwork;
+                    img.alt = "Song artwork";
+                    img.loading = "lazy";
+
+                    artwork.appendChild(img);
+
+                } else {
+
+                    artwork.textContent = "♫";
+                }
+
+                const title = document.createElement("h3");
+                title.textContent = track.title;
+
+                const artist = document.createElement("p");
+                artist.textContent = track.artist;
+
+                const button = document.createElement("button");
+                button.className = "online-play-button";
+                button.textContent = "▶ Play";
+
+                button.addEventListener("click", () => {
+                    playOnlineSong(index);
+                });
+
+                card.appendChild(artwork);
+                card.appendChild(title);
+                card.appendChild(artist);
+                card.appendChild(button);
+
+                onlineResults.appendChild(card);
+
             });
 
-    });
+            searchMessage.textContent =
+                `${tracks.length} songs found.`;
 
-});
+        } catch (error) {
 
+            console.error(error);
 
-// =====================================
-// PLAY / PAUSE ICON
-// =====================================
+            onlineResults.innerHTML =
+                '<p class="empty-message">Music search failed. Please try again.</p>';
 
-audio.addEventListener("play", () => {
+            searchMessage.textContent = error.message;
 
-    playButton.textContent = "⏸";
+        } finally {
 
-});
+            isSearching = false;
 
-audio.addEventListener("pause", () => {
-
-    playButton.textContent = "▶";
-
-});
-
-
-// =====================================
-// SONG PROGRESS
-// =====================================
-
-audio.addEventListener("timeupdate", () => {
-
-    if (!Number.isFinite(audio.duration)) return;
-
-    progressBar.value =
-        (audio.currentTime / audio.duration) * 100;
-
-    currentTimeDisplay.textContent =
-        formatTime(audio.currentTime);
-
-});
-
-
-// =====================================
-// SONG DURATION
-// =====================================
-
-audio.addEventListener("loadedmetadata", () => {
-
-    durationDisplay.textContent =
-        formatTime(audio.duration);
-
-});
-
-
-// =====================================
-// SEEK SONG
-// =====================================
-
-progressBar.addEventListener("input", () => {
-
-    if (
-        Number.isFinite(audio.duration) &&
-        audio.duration > 0
-    ) {
-
-        audio.currentTime =
-            (Number(progressBar.value) / 100) *
-            audio.duration;
-
+            searchButton.disabled = false;
+            searchButton.textContent = "Search";
+        }
     }
 
-});
+
+    // =================================
+    // SEARCH BUTTON
+    // =================================
+
+    searchButton.addEventListener("click", searchMusic);
 
 
-// =====================================
-// VOLUME CONTROL
-// =====================================
+    // =================================
+    // SEARCH WHILE TYPING
+    // =================================
 
-audio.volume = 0.7;
+    searchInput.addEventListener("input", () => {
 
-volumeBar.addEventListener("input", () => {
+        clearTimeout(searchTimer);
 
-    audio.volume = Number(volumeBar.value);
+        if (!searchInput.value.trim()) {
+            onlineResults.innerHTML =
+                '<p class="empty-message">Search for online music.</p>';
+            searchMessage.textContent = "";
+            return;
+        }
 
-});
+        searchTimer = setTimeout(searchMusic, 700);
 
-
-// =====================================
-// AUTOMATIC NEXT SONG
-// =====================================
-
-audio.addEventListener("ended", () => {
-
-    nextSong();
-
-});
+    });
 
 
-// =====================================
-// AUDIO ERROR
-// =====================================
+    // =================================
+    // LOCAL SONG CLICK
+    // =================================
 
-audio.addEventListener("error", () => {
+    document.querySelectorAll(".local-play-button").forEach(button => {
 
-    showMessage(
-        "Song could not be loaded. Check the MP3 file."
-    );
+        button.addEventListener("click", () => {
 
-});
+            const card = button.closest(".local-card");
+
+            const index = Number(card.dataset.songIndex);
+
+            playLocalSong(index);
+
+        });
+
+    });
 
 
-// =====================================
-// SEARCH SONGS
-// =====================================
+    // =================================
+    // PLAY / PAUSE
+    // =================================
 
-searchInput.addEventListener("input", function () {
+    playButton.addEventListener("click", async () => {
 
-    const query = this.value.toLowerCase().trim();
+        if (!audio.src) {
 
-    let visibleCount = 0;
+            if (localSongs.length > 0) {
+                playLocalSong(0);
+            } else {
+                showPlayerMessage("Search and select a song first.");
+            }
 
-    cards.forEach(card => {
+            return;
+        }
 
-        const text = card.textContent.toLowerCase();
+        if (audio.paused) {
 
-        const matches = text.includes(query);
+            try {
+                await audio.play();
+                playButton.textContent = "⏸";
+                showPlayerMessage("");
+            } catch (error) {
+                showPlayerMessage("Unable to play this song.");
+            }
 
-        card.style.display = matches ? "" : "none";
+        } else {
 
-        if (matches) {
-            visibleCount++;
+            audio.pause();
+            playButton.textContent = "▶";
         }
 
     });
 
-    const searchMessage =
-        document.getElementById("searchMessage");
 
-    if (visibleCount === 0) {
+    // =================================
+    // NEXT SONG
+    // =================================
 
-        searchMessage.textContent =
-            "No matching songs found.";
+    nextButton.addEventListener("click", () => {
 
-    } else {
+        if (playlist.length === 0) return;
 
-        searchMessage.textContent = "";
+        const next = (currentIndex + 1) % playlist.length;
 
-    }
+        playSong(next);
+    });
+
+
+    // =================================
+    // PREVIOUS SONG
+    // =================================
+
+    previousButton.addEventListener("click", () => {
+
+        if (playlist.length === 0) return;
+
+        const previous =
+            (currentIndex - 1 + playlist.length) % playlist.length;
+
+        playSong(previous);
+    });
+
+
+    // =================================
+    // AUDIO EVENTS
+    // =================================
+
+    audio.addEventListener("play", () => {
+        playButton.textContent = "⏸";
+    });
+
+    audio.addEventListener("pause", () => {
+        playButton.textContent = "▶";
+    });
+
+    audio.addEventListener("loadedmetadata", () => {
+        duration.textContent = formatTime(audio.duration);
+    });
+
+    audio.addEventListener("timeupdate", () => {
+
+        if (!Number.isFinite(audio.duration) || audio.duration === 0) {
+            return;
+        }
+
+        progressBar.value =
+            (audio.currentTime / audio.duration) * 100;
+
+        currentTime.textContent = formatTime(audio.currentTime);
+
+    });
+
+    audio.addEventListener("ended", () => {
+
+        if (playlist.length > 0 && currentIndex >= 0) {
+
+            const next = (currentIndex + 1) % playlist.length;
+
+            playSong(next);
+
+        }
+
+    });
+
+    audio.addEventListener("error", () => {
+
+        if (audio.currentSrc) {
+            showPlayerMessage("Audio unavailable. Try another song.");
+        }
+
+    });
+
+
+    // =================================
+    // PROGRESS BAR
+    // =================================
+
+    progressBar.addEventListener("input", () => {
+
+        if (Number.isFinite(audio.duration) && audio.duration > 0) {
+
+            audio.currentTime =
+                (progressBar.value / 100) * audio.duration;
+
+        }
+
+    });
+
+
+    // =================================
+    // VOLUME
+    // =================================
+
+    audio.volume = Number(volumeBar.value);
+
+    volumeBar.addEventListener("input", () => {
+
+        audio.volume = Number(volumeBar.value);
+
+    });
 
 });
-
-
-// =====================================
-// BUTTON EVENTS
-// =====================================
-
-playButton.addEventListener("click", togglePlay);
-
-nextButton.addEventListener("click", nextSong);
-
-previousButton.addEventListener("click", previousSong);
-
-
-// =====================================
-// INITIALIZATION
-// =====================================
-
-if (songs.length > 0) {
-
-    loadSong(0);
-
-    showMessage("Choose a song to start listening.");
-
-} else {
-
-    showMessage(
-        "No songs found. Add MP3 files to static/music/songs/."
-    );
-
-}
-
-console.log("MUSICIFY initialized.");
-console.log("Available songs:", songs.length);
