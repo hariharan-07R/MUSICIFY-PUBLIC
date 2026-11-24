@@ -6,80 +6,205 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | MUSICIFY</title>
 
-    <!-- Correct CSS path -->
-    <link rel="stylesheet"
-         href="{{ url_for('static', filename='css/style.css') }}"
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #121212, #000);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 450px;
+            background: #121212;
+            padding: 45px 40px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,.5);
+        }
+
+        .logo {
+            display: inline-block;
+            color: white;
+            font-size: 34px;
+            font-weight: 900;
+            text-decoration: none;
+            margin-bottom: 35px;
+            letter-spacing: -1.5px;
+        }
+
+        .logo span {
+            color: #1DB954;
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: #b3b3b3;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        form {
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 9px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            background: #242424;
+            border: 1px solid #727272;
+            border-radius: 5px;
+            color: white;
+            font-size: 15px;
+            margin-bottom: 23px;
+            outline: none;
+        }
+
+        input:focus {
+            border: 2px solid #1DB954;
+        }
+
+        input::placeholder {
+            color: #aaa;
+        }
+
+        .main-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 30px;
+            background: #1DB954;
+            color: black;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .main-btn:hover {
+            background: #1ed760;
+            transform: scale(1.02);
+        }
+
+        .bottom-text {
+            color: #b3b3b3;
+            font-size: 14px;
+            margin-top: 30px;
+        }
+
+        .bottom-text a {
+            color: white;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .bottom-text a:hover {
+            color: #1DB954;
+        }
+
+        .alert {
+            background: #242424;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert.success {
+            border-left: 4px solid #1DB954;
+        }
+
+        .alert.error,
+        .alert.danger {
+            border-left: 4px solid #e74c3c;
+        }
+
+        @media(max-width: 480px) {
+            .auth-card {
+                padding: 35px 22px;
+            }
+
+            h1 {
+                font-size: 27px;
+            }
+        }
+    </style>
 </head>
 
-<body class="auth-body">
+<body>
 
-    <div class="auth-background">
-        <div class="glow glow-one"></div>
-        <div class="glow glow-two"></div>
-    </div>
+    <main class="auth-card">
 
-    <main class="auth-wrapper">
+        <a href="{{ url_for('login') }}" class="logo">
+            MUSIC<span>IFY</span>
+        </a>
 
-        <div class="auth-card">
+        <h1>Welcome Back!</h1>
 
-            <a href="{{ url_for('login') }}" class="logo">
-                MUSIC<span>IFY</span>
-            </a>
+        <p class="subtitle">
+            Your music. Your mood. Your world.
+        </p>
 
-            <div class="music-icon">♫</div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
 
-            <h1>Welcome Back!</h1>
+        <form method="POST" action="{{ url_for('login') }}">
 
-            <p class="auth-subtitle">
-                Your music. Your mood. Your world.
-            </p>
+            <label>Email Address</label>
 
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% for category, message in messages %}
-                    <div class="alert {{ category }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endwith %}
+            <input
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                required
+            >
 
-            <form method="POST" action="{{ url_for('login') }}">
+            <label>Password</label>
 
-                <label>Email Address</label>
+            <input
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+            >
 
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Enter your email"
-                    autocomplete="email"
-                    required
-                >
+            <button type="submit" class="main-btn">
+                Login →
+            </button>
 
-                <label>Password</label>
+        </form>
 
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                    required
-                >
-
-                <button type="submit" class="main-btn">
-                    Login <span>→</span>
-                </button>
-
-            </form>
-
-            <p class="bottom-text">
-                Don't have an account?
-                <a href="{{ url_for('register') }}">Create Account</a>
-            </p>
-
-            <div class="auth-footer">
-                MADE FOR MUSIC LOVERS ♫
-            </div>
-
-        </div>
+        <p class="bottom-text">
+            Don't have an account?
+            <a href="{{ url_for('register') }}">Create Account</a>
+        </p>
 
     </main>
 
