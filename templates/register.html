@@ -4,13 +4,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | MUSICIFY</title>
+    <title>Sign up | MUSICIFY</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #121212, #000000);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+            color: white;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 450px;
+            background: #121212;
+            padding: 45px 40px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .logo {
+            display: inline-block;
+            font-size: 32px;
+            font-weight: 900;
+            color: white;
+            text-decoration: none;
+            letter-spacing: -1.5px;
+            margin-bottom: 35px;
+        }
+
+        .logo span {
+            color: #1DB954;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: #b3b3b3;
+            font-size: 14px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        form {
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 9px;
+            color: white;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            background: #242424;
+            border: 1px solid #727272;
+            border-radius: 5px;
+            color: white;
+            font-size: 15px;
+            margin-bottom: 22px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:hover {
+            border-color: white;
+        }
+
+        input:focus {
+            border: 2px solid #1DB954;
+        }
+
+        input::placeholder {
+            color: #a7a7a7;
+        }
+
+        .main-btn {
+            width: 100%;
+            padding: 16px;
+            background: #1DB954;
+            border: none;
+            border-radius: 30px;
+            color: black;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: 0.2s;
+        }
+
+        .main-btn:hover {
+            background: #1ed760;
+            transform: scale(1.02);
+        }
+
+        .bottom-text {
+            margin-top: 30px;
+            color: #b3b3b3;
+            font-size: 14px;
+        }
+
+        .bottom-text a {
+            color: white;
+            font-weight: bold;
+            margin-left: 5px;
+            text-decoration: underline;
+        }
+
+        .bottom-text a:hover {
+            color: #1DB954;
+        }
+
+        .alert {
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            background: #242424;
+            color: white;
+        }
+
+        .alert.success {
+            border-left: 4px solid #1DB954;
+        }
+
+        .alert.error, .alert.danger {
+            border-left: 4px solid #e74c3c;
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 35px 22px;
+            }
+
+            h1 {
+                font-size: 27px;
+            }
+        }
+    </style>
 </head>
 
-<body class="auth-body">
+<body>
 
     <div class="auth-card">
 
@@ -18,10 +171,10 @@
             MUSIC<span>IFY</span>
         </a>
 
-        <h1>Create Account</h1>
+        <h1>Sign up to MUSICIFY</h1>
 
         <p class="subtitle">
-            Join MUSICIFY and enjoy your favourite music.
+            Millions of songs. One account. Your music journey starts here.
         </p>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -35,7 +188,6 @@
         <form method="POST" action="{{ url_for('register') }}">
 
             <label>Username</label>
-
             <input
                 type="text"
                 name="username"
@@ -44,7 +196,6 @@
             >
 
             <label>Email Address</label>
-
             <input
                 type="email"
                 name="email"
@@ -53,7 +204,6 @@
             >
 
             <label>Password</label>
-
             <input
                 type="password"
                 name="password"
@@ -70,7 +220,7 @@
 
         <p class="bottom-text">
             Already have an account?
-            <a href="{{ url_for('login') }}">Login here</a>
+            <a href="{{ url_for('login') }}">Log in</a>
         </p>
 
     </div>
